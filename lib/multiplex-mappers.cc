@@ -14,6 +14,7 @@
 // along with this program.  If not, see <http://gnu.org/licenses/gpl-2.0.txt>
 
 #include "multiplex-mappers-internal.h"
+#include <cmath>
 
 namespace rgb_matrix {
 namespace internal {
