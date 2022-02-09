@@ -14,7 +14,11 @@
 // along with this program.  If not, see <http://gnu.org/licenses/gpl-2.0.txt>
 
 #include "multiplex-mappers-internal.h"
+
+#include<iostream>
 #include <cmath>
+
+using namespace std;
 
 namespace rgb_matrix {
 namespace internal {
@@ -321,7 +325,7 @@ protected:
                         int even_vblock_shift, int odd_vblock_shift) const = 0;
 
   static const int tile_width_ = 8;
-  static const int tile_height_ = 4;
+  static const int tile_height_ = 10;
   static const int even_vblock_offset_ = 0;
   static const int odd_vblock_offset_ = 8;
 };
@@ -456,6 +460,8 @@ public:
 };
 
 
+
+
 class ArunMapper : public MultiplexMapperBase {
 public:
   ArunMapper() : MultiplexMapperBase("ArunMapper", 1) {}
@@ -498,36 +504,24 @@ public:
   DbArunMapper() : MultiplexMapperBase("DbArunMapper", 2) {}
 
   void MapSinglePanel(int x, int y, int *matrix_x, int *matrix_y) const {
-
-    // First Quad - First 10 Lines of Physical Board (0 < y < 10)
-    // Second Quad - Next 10 Lines of Physical Board (10 < y < 20)
-    // Third Quad - Next 10 Lines of Physical Board (20 < y < 30)
-    // Fourth Quad - Next 10 Lines of Physical Board (30 < y < 40)
     
-    // FOR :: First and Third Quadrant
     if((y>=0 && y<=9) || (y>=20 && y<= 29)){
-      // We keep adding multiples of 16 to current X but need to start from 16. [Eg 16,32,48,64] {Hence we used 'ceil' in this case}
-      *matrix_x = x + (ceil((x+0.1)/16) * 16);
+    *matrix_x = x + (ceil((x+0.1)/16) * 16);
       if(y>=20 && y<= 29){
-         // For Y values < 20 & 29 >
         *matrix_y = y - 10;
        }else{
-         // For Y values < 0 & 9 >
         *matrix_y = y;
       }
-    } 
-    // FOR :: Second and Fourth Quadrant
-    else {
-      // We keep adding multiples of 16 to current X but need to start from 0. [Eg 0,16,32,48,64] {Hence we used 'floor' in this case}
-      *matrix_x = x + (floor((x+0.1)/16) * 16);
-      if(y>=30 && y<= 39){
-        // For Y values < 30 & 39 >
+    } else {
+    *matrix_x = x + (floor((x+0.1)/16) * 16);
+    if(y>=30 && y<= 39){
         *matrix_y = y - 20;
        }else{
-         // For Y values < 10 & 19 >
         *matrix_y = y - 10;
       } 
     }
+    
+    // *matrix_y = y/2;
   }  
 };
 
@@ -537,12 +531,11 @@ public:
 
   void MapSinglePanel(int x, int y, int *matrix_x, int *matrix_y) const {
     
-   *matrix_x = x * 2;
-   *matrix_y = y/2;
+   *matrix_x = x;
+   *matrix_y = y;
   }
   
 };
-
 
 
 
@@ -573,11 +566,10 @@ static MuxMapperList *CreateMultiplexMapperList() {
   result->push_back(new P8Outdoor1R1G1BMultiplexMapper());
   result->push_back(new FlippedStripeMultiplexMapper());
   result->push_back(new P10Outdoor32x16HalfScanMapper());
-
-  // My Mappers
   result->push_back(new ArunMapper());
   result->push_back(new DbArunMapper());
   result->push_back(new DummyArunMapper());
+
   return result;
 }
 
